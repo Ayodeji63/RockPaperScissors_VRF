@@ -177,4 +177,11 @@ contract RPC is VRFConsumerBaseV2 {
         s_game.choice2 = Choice.ROCK;
         s_game.resolved = false;
     }
+
+    /////////////////
+    // View Function //
+
+    function getRGameState() public view returns (GameState) {
+        return s_gameState;
+    }
 }
