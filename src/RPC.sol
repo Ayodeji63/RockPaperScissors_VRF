@@ -57,6 +57,8 @@ contract RPC is VRFConsumerBaseV2 {
     uint public s_gameId;
     Game public s_game;
     GameState public s_gameState;
+    address private s_recentWinner;
+    uint private s_recentWinnerChoice;
 
     //? Events
     event FirstPlayerJoined(address indexed player);
@@ -89,9 +91,6 @@ contract RPC is VRFConsumerBaseV2 {
             s_game.choice1 = Choice(choice);
             emit FirstPlayerJoined(msg.sender);
         } else if (s_game.player2 == address(0)) {
-            if (s_gameState == GameState.CLOSED) {
-                revert RPC__GameClosed();
-            }
             if (msg.sender != s_game.player1) {
                 s_game.player2 = payable(msg.sender);
                 s_game.choice2 = Choice(choice);
@@ -99,9 +98,9 @@ contract RPC is VRFConsumerBaseV2 {
                 s_gameState = GameState.CALCULATING;
                 emit SecondPlayerJoined(msg.sender);
                 s_gameId++;
-            } else {
-                revert RPC__GameAlreadyStarted();
             }
+        } else {
+            revert RPC__GameAlreadyStarted();
         }
     }
 
@@ -136,7 +135,7 @@ contract RPC is VRFConsumerBaseV2 {
     // CEI: Checks, Effects, Interactions
 
     function fulfillRandomWords(
-        uint256 _requestId,
+        uint256 /*_requestId*/,
         uint256[] memory _randomWords
     ) internal override {
         if (s_gameState != GameState.CALCULATING) {
@@ -147,6 +146,7 @@ contract RPC is VRFConsumerBaseV2 {
 
         uint randomResult = _randomWords[0];
         Choice winnerChoice = Choice(randomResult % 3);
+        s_recentWinnerChoice = uint(winnerChoice);
 
         if (winnerChoice == _game.choice1) {
             winner = _game.player1;
@@ -158,6 +158,7 @@ contract RPC is VRFConsumerBaseV2 {
         }
 
         if (winner != address(this)) {
+            s_recentWinner = winner;
             (bool success, ) = winner.call{value: address(this).balance}("");
             if (!success) {
                 revert RPC__TransferFailed();
@@ -183,5 +184,13 @@ contract RPC is VRFConsumerBaseV2 {
 
     function getRGameState() public view returns (GameState) {
         return s_gameState;
+    }
+
+    function getRecentWinner() public view returns (address) {
+        return s_recentWinner;
+    }
+
+    function getRecentWinnerChoice() public view returns (uint) {
+        return s_recentWinnerChoice;
     }
 }

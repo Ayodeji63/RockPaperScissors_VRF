@@ -61,7 +61,7 @@ contract FundSubscription is Script {
                 FUND_AMOUNT,
                 abi.encode(subId)
             );
-            vm.startBroadcast();
+            vm.stopBroadcast();
         }
     }
 

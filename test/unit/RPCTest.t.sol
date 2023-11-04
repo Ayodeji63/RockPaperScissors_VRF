@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.18;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {RPC} from "../../src/RPC.sol";
 import {DeployRPC} from "../../script/DeployRPC.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
+import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
 
 contract RPCTest is Test {
     RPC private rpc;
@@ -25,12 +26,13 @@ contract RPCTest is Test {
 
     event FirstPlayerJoined(address indexed player);
     event SecondPlayerJoined(address indexed player);
+    event RPC__GameTied();
 
     modifier playersJoinedGame() {
         vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0);
         vm.prank(PLAYER_2);
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(2);
         _;
     }
 
@@ -54,11 +56,23 @@ contract RPCTest is Test {
     //     Join Game        //
 
     function test__EmitsEventOnPlayerJoinGame() public {
-        vm.startPrank(PLAYER_1);
+        vm.prank(PLAYER_1);
         vm.expectEmit(true, true, false, false, address(rpc));
         emit FirstPlayerJoined(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0);
-        vm.stopPrank();
+    }
+
+    function testShouldRevertIfEnoughEthIsNotSent() public {
+        vm.prank(PLAYER_1);
+        vm.expectRevert(abi.encodePacked(RPC.RPC__NotEnoughEthSent.selector));
+        uint notEnoughEntryFee = 0.001 ether;
+        rpc.joinGame{value: notEnoughEntryFee}(0);
+    }
+
+    function testShouldRevertIfGamHasStarted() public playersJoinedGame {
+        vm.prank(PLAYER_2);
+        vm.expectRevert(abi.encodePacked(RPC.RPC__GameAlreadyStarted.selector));
+        rpc.joinGame{value: entranceFee}(0);
     }
 
     function test__EmitsEventOnSecondPlayerJoinGame() public {
@@ -114,10 +128,97 @@ contract RPCTest is Test {
         rpc.performUpkeep("");
     }
 
-    // function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue()
-    //     public
-    //     playersJoinedGame
-    // {
-    //     rpc.performUpkeep("");
-    // }
+    function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue()
+        public
+        playersJoinedGame
+    {
+        rpc.performUpkeep("");
+    }
+
+    function testPerformUpKeepUpdateGameStateAndEmitsRequestId()
+        public
+        playersJoinedGame
+    {
+        // Act
+        vm.recordLogs();
+        rpc.performUpkeep("");
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 requestId = entries[1].topics[1];
+
+        RPC.GameState rState = rpc.getRGameState();
+
+        // Assert
+        assert(uint(requestId) > 0);
+        assert(uint(rState) == 1);
+    }
+
+    /////////////////////
+    // fulfilRandomWords //
+    //////////////////////
+
+    modifier skipFork() {
+        if (block.chainid != 31337) {
+            return;
+        }
+        _;
+    }
+
+    function testFulfilRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
+        uint randomRequestId
+    ) public skipFork {
+        vm.expectRevert("nonexistent request");
+        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
+            randomRequestId,
+            address(rpc)
+        );
+    }
+
+    function testFufillRandomWordsPickWinnerResetsAndSendsMoney()
+        public
+        playersJoinedGame
+        skipFork
+    {
+        // Arrange
+        vm.recordLogs();
+        rpc.performUpkeep("");
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 requestId = entries[1].topics[1];
+        uint prize = entranceFee * 2;
+
+        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
+            uint(requestId),
+            address(rpc)
+        );
+
+        console.log("Recent winner choice", rpc.getRecentWinnerChoice());
+        console.log("Recent winner ", rpc.getRecentWinner());
+        assert(uint(rpc.getRGameState()) == 0);
+        assert(rpc.getRecentWinner() != address(0));
+        assert(
+            rpc.getRecentWinner().balance ==
+                STARTING_USER_BALANCE + prize - entranceFee
+        );
+        // return rpc.getRecentWinnerChoice();
+    }
+
+    function testFufillRandomWordsEmitGameTied() public {
+        // Arrange
+        vm.prank(PLAYER_1);
+        rpc.joinGame{value: entranceFee}(0);
+
+        vm.prank(PLAYER_2);
+        rpc.joinGame{value: entranceFee}(0);
+
+        vm.recordLogs();
+        rpc.performUpkeep("");
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 requestId = entries[1].topics[1];
+
+        vm.expectEmit(false, false, false, false, address(rpc));
+        emit RPC__GameTied();
+        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
+            uint(requestId),
+            address(rpc)
+        );
+    }
 }

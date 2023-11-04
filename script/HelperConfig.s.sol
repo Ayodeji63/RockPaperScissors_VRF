@@ -30,17 +30,17 @@ contract HelperConfig is Script {
         }
     }
 
-    function getSepoliaEthConfig() public view returns (NetworkConfig memory) {
-        return
-            NetworkConfig({
-                entranceFee: 0.01 ether,
-                vrfCoordinator: 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
-                gasLane: 0xff8dedfbfa60af186cf3c830acbc32c05aae823045ae5ea7da1e45fbfaba4f92,
-                subscriptionId: 0,
-                callbackGasLimit: 500000,
-                link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
-                deployerKey: vm.envUint("PRIVATE_KEY")
-            });
+    function getSepoliaEthConfig() public returns (NetworkConfig memory) {
+        networkConfig = NetworkConfig({
+            entranceFee: 0.01 ether,
+            vrfCoordinator: 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
+            gasLane: 0xff8dedfbfa60af186cf3c830acbc32c05aae823045ae5ea7da1e45fbfaba4f92,
+            subscriptionId: 0,
+            callbackGasLimit: 500000,
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
+            deployerKey: vm.envUint("PRIVATE_KEY")
+        });
+        return networkConfig;
     }
 
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {

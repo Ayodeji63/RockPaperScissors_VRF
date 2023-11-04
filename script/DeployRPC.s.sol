@@ -7,6 +7,8 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 import {CreateSubscription, FundSubscription, AddConsumer} from "./Interactions.s.sol";
 
 contract DeployRPC is Script {
+    event DeployRPC_SubscriptionFunded();
+
     function run() external returns (RPC, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
 
@@ -36,6 +38,8 @@ contract DeployRPC is Script {
                 link,
                 deployerKey
             );
+
+            emit DeployRPC_SubscriptionFunded();
         }
 
         vm.startBroadcast();
