@@ -1,0 +1,45 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="200"
+  height="200"
+  viewBox="0 0 200 200"
+>
+  <!-- Background - Light Grey -->
+  <rect width="200" height="200" fill="#f2f2f2" />
+
+  <!-- Level Icon - Circular Background - Light Blue -->
+  <circle cx="100" cy="100" r="80" fill="#adb929" />
+
+  <!-- Level Number - Dynamic Font -->
+  <text
+    x="100"
+    y="110"
+    font-family="Arial, sans-serif"
+    font-size="40"
+    font-weight="bold"
+    fill="#fff"
+    text-anchor="middle"
+  >
+    Master
+  </text>
+
+  <!-- Game Controller Icon - Joystick - White -->
+  <path
+    d="M100 60c13.2 0 24-10.8 24-24s-10.8-24-24-24-24 10.8-24 24 10.8 24 24 24zm6.6 15.6c-1.8 1.8-4.8 1.8-6.6 0L80 75.4 71.4 84l19.6 19.6c1.8 1.8 4.8 1.8 6.6 0 1.8-1.8 1.8-4.8 0-6.6L86 68.8l9.6-9.6z"
+    fill="#fff"
+  />
+
+  <!-- Game Effects - Stars -->
+  <polygon points="60,40 63,40 64,36 65,40 68,40 66,43 68,44 65,46 64,50 63,46 60,45 62,43" fill="#f39c12" />
+  <polygon points="80,20 83,20 84,16 85,20 88,20 86,23 88,24 85,26 84,30 83,26 80,25 82,23" fill="#f39c12" />
+  <polygon points="120,30 123,30 124,26 125,30 128,30 126,33 128,34 125,36 124,40 123,36 120,35 122,33" fill="#f39c12" />
+  <polygon points="140,10 143,10 144,6 145,10 148,10 146,13 148,14 145,16 144,20 143,16 140,15 142,13" fill="#f39c12" />
+  <polygon points="170,50 173,50 174,46 175,50 178,50 176,53 178,54 175,56 174,60 173,56 170,55 172,53" fill="#f39c12" />
+
+  <!-- Game Effects - Circles -->
+  <circle cx="60" cy="140" r="6" fill="#f39c12" />
+  <circle cx="30" cy="70" r="6" fill="#f39c12" />
+  <circle cx="160" cy="30" r="6" fill="#f39c12" />
+  <circle cx="140" cy="160" r="6" fill="#f39c12" />
+  <circle cx="100" cy="180" r="6" fill="#f39c12" />
+</svg>
