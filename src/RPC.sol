@@ -36,6 +36,8 @@ contract RPC is VRFConsumerBaseV2 {
     struct Game {
         address payable player1;
         address payable player2;
+        uint player1Character;
+        uint player2Character;
         Choice choice1;
         Choice choice2;
         uint gameId;
@@ -82,18 +84,20 @@ contract RPC is VRFConsumerBaseV2 {
         s_gameState = GameState.OPEN;
     }
 
-    function joinGame(uint choice) external payable {
+    function joinGame(uint choice, uint characterId) external payable {
         if (msg.value < i_entranceFee) {
             revert RPC__NotEnoughEthSent();
         }
         if (s_game.player1 == address(0)) {
             s_game.player1 = payable(msg.sender);
             s_game.choice1 = Choice(choice);
+            s_game.player1Character = characterId;
             emit FirstPlayerJoined(msg.sender);
         } else if (s_game.player2 == address(0)) {
             if (msg.sender != s_game.player1) {
                 s_game.player2 = payable(msg.sender);
                 s_game.choice2 = Choice(choice);
+                s_game.player2Character = characterId;
                 s_game.resolved = true;
                 s_gameState = GameState.CALCULATING;
                 emit SecondPlayerJoined(msg.sender);

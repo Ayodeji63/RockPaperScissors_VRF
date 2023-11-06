@@ -36,6 +36,8 @@ contract HelperConfig is Script {
     RankImageUri public rankImageUri;
     uint256 public constant DEFAULT_ANVIL_KEY =
         0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+    address public constant DEFAULT_ANVIL_ADDRESS =
+        0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     constructor() {
         if (block.chainid == 11155111) {
@@ -103,5 +105,15 @@ contract HelperConfig is Script {
         });
 
         return rankImageUri;
+    }
+
+    function getOwnerAddress() public view returns (address) {
+        address owner;
+        if (block.chainid == 11155111) {
+            owner = vm.envAddress("OWNER_ADDRESS");
+        } else {
+            owner = DEFAULT_ANVIL_ADDRESS;
+        }
+        return owner;
     }
 }

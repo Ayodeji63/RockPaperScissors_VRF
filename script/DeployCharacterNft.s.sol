@@ -27,10 +27,26 @@ contract DeployCharacterNft is Script {
     function run() public returns (CharacterNFT, HelperConfig) {
         helperConfig = new HelperConfig();
 
-        console.log(helperConfig.getRankImageUri().s_rank0ImageUri);
+        CharacterNFT.RankImageUri memory rankImageUri = CharacterNFT
+            .RankImageUri({
+                s_rank0ImageUri: helperConfig.getRankImageUri().s_rank0ImageUri,
+                s_rank1ImageUri: helperConfig.getRankImageUri().s_rank1ImageUri,
+                s_rank2ImageUri: helperConfig.getRankImageUri().s_rank2ImageUri,
+                s_rank3ImageUri: helperConfig.getRankImageUri().s_rank3ImageUri,
+                s_rank4ImageUri: helperConfig.getRankImageUri().s_rank4ImageUri,
+                s_rank5ImageUri: helperConfig.getRankImageUri().s_rank5ImageUri,
+                s_rank6ImageUri: helperConfig.getRankImageUri().s_rank6ImageUri,
+                s_rank7ImageUri: helperConfig.getRankImageUri().s_rank7ImageUri,
+                s_rank8ImageUri: helperConfig.getRankImageUri().s_rank8ImageUri,
+                s_rank9ImageUri: helperConfig.getRankImageUri().s_rank9ImageUri,
+                s_rank10ImageUri: helperConfig
+                    .getRankImageUri()
+                    .s_rank10ImageUri
+            });
+        address owner = helperConfig.getOwnerAddress();
+
         vm.startBroadcast();
-        RankImageUri memory rankImageUri;
-        characterNft = new CharacterNFT(rankImageUri, msg.sender);
+        characterNft = new CharacterNFT(rankImageUri, owner);
         vm.stopBroadcast();
 
         return (characterNft, helperConfig);

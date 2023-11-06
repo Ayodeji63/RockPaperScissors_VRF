@@ -23,6 +23,8 @@ contract CharacterNFT is ERC721 {
         string s_rank10ImageUri;
     }
 
+    //? Events
+    event CharachterMinted(uint indexed tokenId);
     //? State Variables
     uint private s_tokenCounter;
     RankImageUri private s_rankImageUri;
@@ -56,6 +58,7 @@ contract CharacterNFT is ERC721 {
     function mintCharacter() public {
         _safeMint(msg.sender, s_tokenCounter);
         s_ranksNum[s_tokenCounter] = 0;
+        emit CharachterMinted(s_tokenCounter);
         s_tokenCounter++;
     }
 
@@ -137,5 +140,17 @@ contract CharacterNFT is ERC721 {
                     )
                 )
             );
+    }
+
+    ////////////////////
+    // View Function //
+    ///////////////////
+
+    function getOwnerAddress() public view returns (address) {
+        return i_owner;
+    }
+
+    function getRpcContract() public view returns (address) {
+        return s_rpcContract;
     }
 }
