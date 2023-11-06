@@ -8,7 +8,7 @@
   <rect width="200" height="200" fill="#f2f2f2" />
 
   <!-- Level Icon - Circular Background - Light Blue -->
-  <circle cx="100" cy="100" r="80" fill="#b93329" />
+  <circle cx="100" cy="100" r="80" fill="#b92929" />
 
   <!-- Level Number - Dynamic Font -->
   <text
