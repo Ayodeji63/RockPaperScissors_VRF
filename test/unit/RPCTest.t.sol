@@ -30,9 +30,9 @@ contract RPCTest is Test {
 
     modifier playersJoinedGame() {
         vm.prank(PLAYER_1);
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(0, 0);
         vm.prank(PLAYER_2);
-        rpc.joinGame{value: entranceFee}(2);
+        rpc.joinGame{value: entranceFee}(2, 1);
         _;
     }
 
@@ -59,30 +59,30 @@ contract RPCTest is Test {
         vm.prank(PLAYER_1);
         vm.expectEmit(true, true, false, false, address(rpc));
         emit FirstPlayerJoined(PLAYER_1);
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(0, 1);
     }
 
     function testShouldRevertIfEnoughEthIsNotSent() public {
         vm.prank(PLAYER_1);
         vm.expectRevert(abi.encodePacked(RPC.RPC__NotEnoughEthSent.selector));
         uint notEnoughEntryFee = 0.001 ether;
-        rpc.joinGame{value: notEnoughEntryFee}(0);
+        rpc.joinGame{value: notEnoughEntryFee}(0, 0);
     }
 
     function testShouldRevertIfGamHasStarted() public playersJoinedGame {
         vm.prank(PLAYER_2);
         vm.expectRevert(abi.encodePacked(RPC.RPC__GameAlreadyStarted.selector));
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(0, 1);
     }
 
     function test__EmitsEventOnSecondPlayerJoinGame() public {
         vm.prank(PLAYER_1);
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(0, 0);
 
         vm.prank(PLAYER_2);
         vm.expectEmit(true, true, false, false, address(rpc));
         emit SecondPlayerJoined(PLAYER_2);
-        rpc.joinGame{value: entranceFee}(1);
+        rpc.joinGame{value: entranceFee}(1, 1);
     }
 
     function testGameStateIsCalculatingWhenPlayer2Join()
@@ -105,7 +105,7 @@ contract RPCTest is Test {
 
     function testCheckUpKeepReturnsFalseIfRpcNotCalculating() public {
         vm.prank(PLAYER_1);
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(0, 0);
         (bool upkeepNeeded, ) = rpc.checkUpkeep("");
         assert(!upkeepNeeded);
     }
@@ -204,10 +204,10 @@ contract RPCTest is Test {
     function testFufillRandomWordsEmitGameTied() public {
         // Arrange
         vm.prank(PLAYER_1);
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(0, 0);
 
         vm.prank(PLAYER_2);
-        rpc.joinGame{value: entranceFee}(0);
+        rpc.joinGame{value: entranceFee}(0, 1);
 
         vm.recordLogs();
         rpc.performUpkeep("");

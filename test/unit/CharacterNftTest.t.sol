@@ -52,13 +52,16 @@ contract CharacterNftTest is Test {
         vm.expectRevert(
             abi.encodePacked(CharacterNFT.CharacterNFT__OnlyOwner.selector)
         );
-        characterNFT.setRpcContract(address(rpc));
+        characterNFT.setvrfCoordinatorContract(address(rpc));
     }
 
-    function testShouldSetRpcContract() public {
-        vm.prank(helperConfig.getOwnerAddress());
-        characterNFT.setRpcContract(address(rpc));
-        assert(characterNFT.getRpcContract() == address(rpc));
+    function testShouldSetvrfCoordinatorContract() public {
+        address owner = helperConfig.getOwnerAddress();
+        (, address vrfCoordinator, , , , , ) = helperConfig
+            .activeNetworkConfig();
+        vm.prank(owner);
+        characterNFT.setvrfCoordinatorContract(address(vrfCoordinator));
+        assert(characterNFT.getRpcContract() == address(vrfCoordinator));
     }
 
     function testTokenUriForStarter() public {

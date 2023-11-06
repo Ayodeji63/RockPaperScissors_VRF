@@ -41,7 +41,7 @@ contract CharacterNFT is ERC721 {
         i_owner = owner;
     }
 
-    modifier onlyRpcContract() {
+    modifier onlyVrfCoordinatorContract() {
         if (msg.sender != s_rpcContract) {
             revert CharacterNFT__OnlyRpcContract();
         }
@@ -62,14 +62,14 @@ contract CharacterNFT is ERC721 {
         s_tokenCounter++;
     }
 
-    function setRpcContract(address rpcContract) external onlyOwner {
+    function setvrfCoordinatorContract(address rpcContract) external onlyOwner {
         s_rpcContract = rpcContract;
     }
 
     function FlipRankNum(
         uint tokenId,
         bool winOrLose
-    ) external onlyRpcContract {
+    ) external onlyVrfCoordinatorContract {
         uint previousNum = s_ranksNum[tokenId];
         if (winOrLose) {
             if (previousNum != 10) {

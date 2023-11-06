@@ -3,13 +3,21 @@ pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
 import {RPC} from "../src/RPC.sol";
+
+import {DeployCharacterNft} from "./DeployCharacterNft.s.sol";
+import {CharacterNFT} from "../src/CharacterNft.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import {CreateSubscription, FundSubscription, AddConsumer} from "./Interactions.s.sol";
 
 contract DeployRPC is Script {
     event DeployRPC_SubscriptionFunded();
 
+    DeployCharacterNft public deployer;
+    CharacterNFT public characterNft;
+
     function run() external returns (RPC, HelperConfig) {
+        deployer = new DeployCharacterNft();
+        (characterNft, ) = deployer.run();
         HelperConfig helperConfig = new HelperConfig();
 
         (
@@ -48,7 +56,8 @@ contract DeployRPC is Script {
             vrfCoordinator,
             gasLane,
             subscriptionId,
-            callbackGasLimit
+            callbackGasLimit,
+            address(characterNft)
         );
         vm.stopBroadcast();
 

@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import {CharacterNFT} from "./CharacterNft.sol";
 
 /**
  * @title A Rock Paper Scissors
@@ -61,6 +62,7 @@ contract RPC is VRFConsumerBaseV2 {
     GameState public s_gameState;
     address private s_recentWinner;
     uint private s_recentWinnerChoice;
+    CharacterNFT private immutable i_characterNft;
 
     //? Events
     event FirstPlayerJoined(address indexed player);
@@ -73,7 +75,8 @@ contract RPC is VRFConsumerBaseV2 {
         address vrfCoordinator,
         bytes32 gasLane,
         uint64 subscriptionId,
-        uint32 callbackGasLimit
+        uint32 callbackGasLimit,
+        address characterNft
     ) VRFConsumerBaseV2(vrfCoordinator) {
         i_entranceFee = entranceFee;
         s_gameId = 0;
@@ -82,6 +85,7 @@ contract RPC is VRFConsumerBaseV2 {
         i_callbackGasLimit = callbackGasLimit;
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinator);
         s_gameState = GameState.OPEN;
+        i_characterNft = CharacterNFT(characterNft);
     }
 
     function joinGame(uint choice, uint characterId) external payable {
@@ -154,8 +158,12 @@ contract RPC is VRFConsumerBaseV2 {
 
         if (winnerChoice == _game.choice1) {
             winner = _game.player1;
+            i_characterNft.FlipRankNum(_game.player1Character, true);
+            i_characterNft.FlipRankNum(_game.player2Character, false);
         } else if (winnerChoice == _game.choice2) {
             winner = _game.player2;
+            i_characterNft.FlipRankNum(_game.player1Character, false);
+            i_characterNft.FlipRankNum(_game.player2Character, true);
         } else {
             winner = payable(address(this));
             emit RPC__GameTied();
@@ -179,6 +187,8 @@ contract RPC is VRFConsumerBaseV2 {
         s_game.player1 = payable(address(0));
         s_game.player2 = payable(address(0));
         s_game.choice1 = Choice.ROCK;
+        s_game.player1Character = 0;
+        s_game.player2Character = 0;
         s_game.choice2 = Choice.ROCK;
         s_game.resolved = false;
     }
