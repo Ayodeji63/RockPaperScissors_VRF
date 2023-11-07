@@ -15,9 +15,10 @@ contract DeployRPC is Script {
     DeployCharacterNft public deployer;
     CharacterNFT public characterNft;
 
-    function run() external returns (RPC, HelperConfig) {
+    function run() external returns (RPC, HelperConfig, CharacterNFT) {
         deployer = new DeployCharacterNft();
         (characterNft, ) = deployer.run();
+
         HelperConfig helperConfig = new HelperConfig();
 
         (
@@ -60,6 +61,9 @@ contract DeployRPC is Script {
             address(characterNft)
         );
         vm.stopBroadcast();
+        address owner = helperConfig.getOwnerAddress();
+        vm.prank(owner);
+        characterNft.setvrfCoordinatorContract(address(rpc));
 
         AddConsumer addConsumer = new AddConsumer();
         addConsumer.addConsumer(
@@ -69,6 +73,6 @@ contract DeployRPC is Script {
             deployerKey
         );
 
-        return (rpc, helperConfig);
+        return (rpc, helperConfig, characterNft);
     }
 }

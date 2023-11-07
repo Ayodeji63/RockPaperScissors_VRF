@@ -69,6 +69,7 @@ contract RPC is VRFConsumerBaseV2 {
     event SecondPlayerJoined(address indexed player);
     event RequestedRPCWinner(uint256 indexed requestId);
     event RPC__GameTied();
+    event RecentWinner(address indexed winner, uint indexed tokenId);
 
     constructor(
         uint entranceFee,
@@ -151,6 +152,7 @@ contract RPC is VRFConsumerBaseV2 {
         }
         Game storage _game = s_game;
         address payable winner;
+        uint winnerCharacter;
 
         uint randomResult = _randomWords[0];
         Choice winnerChoice = Choice(randomResult % 3);
@@ -160,15 +162,19 @@ contract RPC is VRFConsumerBaseV2 {
             winner = _game.player1;
             i_characterNft.FlipRankNum(_game.player1Character, true);
             i_characterNft.FlipRankNum(_game.player2Character, false);
-        } else if (winnerChoice == _game.choice2) {
+            winnerCharacter = _game.player1Character;
+        }
+        if (winnerChoice == _game.choice2) {
             winner = _game.player2;
             i_characterNft.FlipRankNum(_game.player1Character, false);
             i_characterNft.FlipRankNum(_game.player2Character, true);
+            winnerCharacter = _game.player2Character;
         } else {
             winner = payable(address(this));
             emit RPC__GameTied();
         }
 
+        emit RecentWinner(winner, winnerCharacter);
         if (winner != address(this)) {
             s_recentWinner = winner;
             (bool success, ) = winner.call{value: address(this).balance}("");

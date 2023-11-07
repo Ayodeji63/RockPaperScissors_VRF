@@ -27,7 +27,7 @@ contract DeployRPCTest is Test {
     }
 
     function testDeployerRun() public {
-        (rpc, helperConfig) = deployer.run();
+        (rpc, helperConfig, ) = deployer.run();
         (
             entranceFee,
             vrfCoordinator,
@@ -44,6 +44,6 @@ contract DeployRPCTest is Test {
     function testDeployRpcEmitSubscriptionFunded() public {
         vm.expectEmit(false, false, false, false, address(deployer));
         emit DeployRPC_SubscriptionFunded();
-        (rpc, helperConfig) = deployer.run();
+        (rpc, helperConfig, ) = deployer.run();
     }
 }

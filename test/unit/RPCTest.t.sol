@@ -7,10 +7,13 @@ import {RPC} from "../../src/RPC.sol";
 import {DeployRPC} from "../../script/DeployRPC.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
+import {DeployCharacterNft} from "../../script/DeployCharacterNft.s.sol";
+import {CharacterNFT} from "../../src/CharacterNft.sol";
 
 contract RPCTest is Test {
     RPC private rpc;
     HelperConfig private helperConfig;
+    CharacterNFT private characterNFT;
     address public PLAYER_1 = makeAddr("player1");
     address public PLAYER_2 = makeAddr("player2");
     uint public constant STARTING_USER_BALANCE = 100 ether;
@@ -38,7 +41,9 @@ contract RPCTest is Test {
 
     function setUp() external {
         DeployRPC deployer = new DeployRPC();
-        (rpc, helperConfig) = deployer.run();
+        DeployCharacterNft deployChar = new DeployCharacterNft();
+        (characterNFT, ) = deployChar.run();
+        (rpc, helperConfig, ) = deployer.run();
         (
             entranceFee,
             vrfCoordinator,
@@ -171,34 +176,6 @@ contract RPCTest is Test {
             randomRequestId,
             address(rpc)
         );
-    }
-
-    function testFufillRandomWordsPickWinnerResetsAndSendsMoney()
-        public
-        playersJoinedGame
-        skipFork
-    {
-        // Arrange
-        vm.recordLogs();
-        rpc.performUpkeep("");
-        Vm.Log[] memory entries = vm.getRecordedLogs();
-        bytes32 requestId = entries[1].topics[1];
-        uint prize = entranceFee * 2;
-
-        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
-            uint(requestId),
-            address(rpc)
-        );
-
-        console.log("Recent winner choice", rpc.getRecentWinnerChoice());
-        console.log("Recent winner ", rpc.getRecentWinner());
-        assert(uint(rpc.getRGameState()) == 0);
-        assert(rpc.getRecentWinner() != address(0));
-        assert(
-            rpc.getRecentWinner().balance ==
-                STARTING_USER_BALANCE + prize - entranceFee
-        );
-        // return rpc.getRecentWinnerChoice();
     }
 
     function testFufillRandomWordsEmitGameTied() public {

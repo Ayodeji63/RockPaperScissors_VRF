@@ -25,12 +25,13 @@ contract CharacterNFT is ERC721 {
 
     //? Events
     event CharachterMinted(uint indexed tokenId);
+    event RankIncreased(uint indexed tokenId, uint indexed characterRank);
     //? State Variables
     uint private s_tokenCounter;
     RankImageUri private s_rankImageUri;
     address private s_rpcContract;
     address private immutable i_owner;
-    mapping(uint => uint) private s_ranksNum;
+    mapping(uint => uint) public s_ranksNum;
 
     constructor(
         RankImageUri memory rankImageUri,
@@ -70,14 +71,17 @@ contract CharacterNFT is ERC721 {
         uint tokenId,
         bool winOrLose
     ) external onlyVrfCoordinatorContract {
-        uint previousNum = s_ranksNum[tokenId];
-        if (winOrLose) {
-            if (previousNum != 10) {
-                s_ranksNum[tokenId] = previousNum++;
-            }
-        } else if (previousNum != 0) {
-            s_ranksNum[tokenId] = previousNum--;
+        uint currentRank = s_ranksNum[tokenId];
+        uint tokenRank;
+
+        if (winOrLose && currentRank < 10) {
+            s_ranksNum[tokenId] = currentRank + 1;
+            tokenRank = s_ranksNum[tokenId];
+        } else if (!winOrLose && currentRank > 0) {
+            s_ranksNum[tokenId] = currentRank - 1;
+            tokenRank = s_ranksNum[tokenId];
         }
+        emit RankIncreased(tokenId, tokenRank);
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -152,5 +156,9 @@ contract CharacterNFT is ERC721 {
 
     function getRpcContract() public view returns (address) {
         return s_rpcContract;
+    }
+
+    function getCharacterRank(uint tokenId) public view returns (uint) {
+        return s_ranksNum[tokenId];
     }
 }

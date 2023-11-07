@@ -5,6 +5,9 @@ import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 import {CharacterNFT} from "../src/CharacterNft.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
+import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
+import {DeployRPC} from "./DeployRPC.s.sol";
+import {RPC} from "../src/RPC.sol";
 
 contract DeployCharacterNft is Script {
     struct RankImageUri {
@@ -23,10 +26,11 @@ contract DeployCharacterNft is Script {
 
     CharacterNFT public characterNft;
     HelperConfig public helperConfig;
+    DeployRPC public deployer;
+    RPC rpc;
 
     function run() public returns (CharacterNFT, HelperConfig) {
         helperConfig = new HelperConfig();
-
         CharacterNFT.RankImageUri memory rankImageUri = CharacterNFT
             .RankImageUri({
                 s_rank0ImageUri: helperConfig.getRankImageUri().s_rank0ImageUri,
