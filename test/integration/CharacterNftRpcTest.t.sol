@@ -34,6 +34,13 @@ contract RPCTest is Test {
     event RPC__GameTied();
     event RecentWinner(address indexed winner, uint indexed tokenId);
 
+    modifier playerMintToken() {
+        vm.prank(PLAYER_1);
+        characterNFT.mintCharacter();
+        vm.prank(PLAYER_2);
+        characterNFT.mintCharacter();
+        _;
+    }
     modifier playersJoinedGame() {
         vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0, 0);
@@ -87,6 +94,7 @@ contract RPCTest is Test {
 
     function testFufillRandomWordsPickWinnerResetsAndSendsMoney()
         public
+        playerMintToken
         playersJoinedGame
         skipFork
         returns (address recentWinner)
@@ -106,6 +114,7 @@ contract RPCTest is Test {
 
     function testFufillRandomWordsPickWinnerResetsEmitEventAndSendsMoney()
         public
+        playerMintToken
         playersJoinedGame
         skipFork
     {
@@ -115,13 +124,12 @@ contract RPCTest is Test {
         fulfillRandomWordsAndGetLogs();
     }
 
-    function testFlipRankNumShouldEmitEvent()
+    function testShouldFlipWinnerRankNum()
         public
+        playerMintToken
         playersJoinedGame
         skipFork
-    {}
-
-    function testShouldFlipWinnerRankNum() public playersJoinedGame skipFork {
+    {
         // Arrange
         uint player1InitialRank = characterNFT.getCharacterRank(0);
         uint player2InitialRank = characterNFT.getCharacterRank(1);
@@ -133,5 +141,21 @@ contract RPCTest is Test {
 
         assert(player1FinalRank == player1InitialRank);
         assert(player2FinalRank > player2InitialRank);
+    }
+
+    function testWinnerTokenUri()
+        public
+        playerMintToken
+        playersJoinedGame
+        skipFork
+    {
+        address winner;
+        uint winnerCharacterId;
+        (winner, winnerCharacterId) = fulfillRandomWordsAndGetLogs();
+        assert(
+            keccak256(
+                abi.encodePacked(characterNFT.tokenURI(uint(winnerCharacterId)))
+            ) != keccak256(abi.encodePacked(STARTER_TOKEN_URI))
+        );
     }
 }

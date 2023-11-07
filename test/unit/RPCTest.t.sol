@@ -33,17 +33,27 @@ contract RPCTest is Test {
 
     modifier playersJoinedGame() {
         vm.prank(PLAYER_1);
+        characterNFT.mintCharacter();
+        vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0, 0);
+        vm.prank(PLAYER_2);
+        characterNFT.mintCharacter();
         vm.prank(PLAYER_2);
         rpc.joinGame{value: entranceFee}(2, 1);
         _;
     }
 
+    modifier playerMintToken() {
+        vm.prank(PLAYER_1);
+        characterNFT.mintCharacter();
+        vm.prank(PLAYER_2);
+        characterNFT.mintCharacter();
+        _;
+    }
+
     function setUp() external {
         DeployRPC deployer = new DeployRPC();
-        DeployCharacterNft deployChar = new DeployCharacterNft();
-        (characterNFT, ) = deployChar.run();
-        (rpc, helperConfig, ) = deployer.run();
+        (rpc, helperConfig, characterNFT) = deployer.run();
         (
             entranceFee,
             vrfCoordinator,
@@ -62,12 +72,18 @@ contract RPCTest is Test {
 
     function test__EmitsEventOnPlayerJoinGame() public {
         vm.prank(PLAYER_1);
-        vm.expectEmit(true, true, false, false, address(rpc));
+        vm.recordLogs();
+        characterNFT.mintCharacter();
+        Vm.Log[] memory _entries = vm.getRecordedLogs();
+        bytes32 tokenId1 = _entries[1].topics[1];
+        uint s_player1tokenId = uint(tokenId1);
+        vm.expectEmit(true, false, false, false, address(rpc));
         emit FirstPlayerJoined(PLAYER_1);
-        rpc.joinGame{value: entranceFee}(0, 1);
+        vm.prank(PLAYER_1);
+        rpc.joinGame{value: entranceFee}(0, s_player1tokenId);
     }
 
-    function testShouldRevertIfEnoughEthIsNotSent() public {
+    function testShouldRevertIfEnoughEthIsNotSent() public playerMintToken {
         vm.prank(PLAYER_1);
         vm.expectRevert(abi.encodePacked(RPC.RPC__NotEnoughEthSent.selector));
         uint notEnoughEntryFee = 0.001 ether;
@@ -80,14 +96,14 @@ contract RPCTest is Test {
         rpc.joinGame{value: entranceFee}(0, 1);
     }
 
-    function test__EmitsEventOnSecondPlayerJoinGame() public {
+    function test__EmitsEventOnSecondPlayerJoinGame() public playerMintToken {
         vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0, 0);
 
         vm.prank(PLAYER_2);
-        vm.expectEmit(true, true, false, false, address(rpc));
+        vm.expectEmit(true, false, false, false, address(rpc));
         emit SecondPlayerJoined(PLAYER_2);
-        rpc.joinGame{value: entranceFee}(1, 1);
+        rpc.joinGame{value: entranceFee}(0, 1);
     }
 
     function testGameStateIsCalculatingWhenPlayer2Join()
@@ -109,6 +125,8 @@ contract RPCTest is Test {
     }
 
     function testCheckUpKeepReturnsFalseIfRpcNotCalculating() public {
+        vm.prank(PLAYER_1);
+        characterNFT.mintCharacter();
         vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0, 0);
         (bool upkeepNeeded, ) = rpc.checkUpkeep("");
@@ -181,8 +199,12 @@ contract RPCTest is Test {
     function testFufillRandomWordsEmitGameTied() public {
         // Arrange
         vm.prank(PLAYER_1);
+        characterNFT.mintCharacter();
+        vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0, 0);
 
+        vm.prank(PLAYER_2);
+        characterNFT.mintCharacter();
         vm.prank(PLAYER_2);
         rpc.joinGame{value: entranceFee}(0, 1);
 

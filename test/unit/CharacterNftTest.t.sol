@@ -35,6 +35,14 @@ contract CharacterNftTest is Test {
         vm.deal(PLAYER_1, STARTING_BALANCE);
     }
 
+    modifier playerMintToken() {
+        vm.prank(PLAYER_1);
+        characterNFT.mintCharacter();
+        vm.prank(PLAYER_2);
+        characterNFT.mintCharacter();
+        _;
+    }
+
     modifier playersJoinedGame() {
         vm.prank(PLAYER_1);
         vm.recordLogs();
@@ -42,6 +50,7 @@ contract CharacterNftTest is Test {
         Vm.Log[] memory _entries = vm.getRecordedLogs();
         bytes32 tokenId1 = _entries[1].topics[1];
         s_player1tokenId = uint(tokenId1);
+        vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0, s_player1tokenId);
         vm.prank(PLAYER_2);
         vm.recordLogs();
@@ -49,6 +58,7 @@ contract CharacterNftTest is Test {
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 tokenId2 = entries[1].topics[1];
         s_plater2tokenId = uint(tokenId2);
+        vm.prank(PLAYER_2);
         rpc.joinGame{value: entranceFee}(2, s_plater2tokenId);
         _;
     }
@@ -105,7 +115,7 @@ contract CharacterNftTest is Test {
         characterNFT.FlipRankNum(s_player1tokenId, true);
     }
 
-    function testFlipRank() public playersJoinedGame {
+    function testFlipRankAndIncreaseRank() public playersJoinedGame {
         vm.startPrank(address(rpc));
         uint player1InitialRank = characterNFT.getCharacterRank(
             s_player1tokenId

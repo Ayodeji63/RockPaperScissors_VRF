@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {CharacterNFT} from "./CharacterNft.sol";
+import {console} from "forge-std/console.sol";
 
 /**
  * @title A Rock Paper Scissors
@@ -20,6 +21,7 @@ contract RPC is VRFConsumerBaseV2 {
     error RPC__UpKeepNotNeeded();
     error RPC__GameStateNotCalculating();
     error RPC__TransferFailed();
+    error RPC__NoCharacterNft();
 
     //? Types Declarations
     enum Choice {
@@ -90,6 +92,10 @@ contract RPC is VRFConsumerBaseV2 {
     }
 
     function joinGame(uint choice, uint characterId) external payable {
+        console.log(msg.sender);
+        if (i_characterNft.ownerOf(characterId) != msg.sender) {
+            revert RPC__NoCharacterNft();
+        }
         if (msg.value < i_entranceFee) {
             revert RPC__NotEnoughEthSent();
         }
@@ -99,15 +105,13 @@ contract RPC is VRFConsumerBaseV2 {
             s_game.player1Character = characterId;
             emit FirstPlayerJoined(msg.sender);
         } else if (s_game.player2 == address(0)) {
-            if (msg.sender != s_game.player1) {
-                s_game.player2 = payable(msg.sender);
-                s_game.choice2 = Choice(choice);
-                s_game.player2Character = characterId;
-                s_game.resolved = true;
-                s_gameState = GameState.CALCULATING;
-                emit SecondPlayerJoined(msg.sender);
-                s_gameId++;
-            }
+            s_game.player2 = payable(msg.sender);
+            s_game.choice2 = Choice(choice);
+            s_game.player2Character = characterId;
+            s_game.resolved = true;
+            s_gameState = GameState.CALCULATING;
+            emit SecondPlayerJoined(s_game.player2);
+            s_gameId++;
         } else {
             revert RPC__GameAlreadyStarted();
         }
