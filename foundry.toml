@@ -4,5 +4,6 @@ out = "out"
 libs = ["lib"]
 solc = "0.8.20"
 remappings = ['@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts', '@solmate=lib/solmate/src']
+ffi = true
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

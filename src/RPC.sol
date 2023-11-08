@@ -143,6 +143,7 @@ contract RPC is VRFConsumerBaseV2 {
         );
 
         emit RequestedRPCWinner(requestId);
+        s_gameState = GameState.CLOSED;
     }
 
     // CEI: Checks, Effects, Interactions

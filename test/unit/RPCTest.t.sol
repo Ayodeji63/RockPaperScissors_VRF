@@ -212,7 +212,7 @@ contract RPCTest is Test {
         rpc.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1];
-
+        console.log("request id", uint(requestId));
         vm.expectEmit(false, false, false, false, address(rpc));
         emit RPC__GameTied();
         VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(

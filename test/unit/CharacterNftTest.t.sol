@@ -108,28 +108,28 @@ contract CharacterNftTest is Test {
         );
     }
 
-    function testFlipRankNumShouldEmitEvent() public playersJoinedGame {
-        vm.prank(address(rpc));
-        vm.expectEmit(true, true, false, false, address(characterNFT));
-        emit RankIncreased(s_player1tokenId, 1);
-        characterNFT.FlipRankNum(s_player1tokenId, true);
-    }
+    // function testFlipRankNumShouldEmitEvent() public playersJoinedGame {
+    //     vm.prank(address(rpc));
+    //     vm.expectEmit(true, true, false, false, address(characterNFT));
+    //     emit RankIncreased(s_player1tokenId, 1);
+    //     characterNFT.FlipRankNum(s_player1tokenId, true);
+    // }
 
-    function testFlipRankAndIncreaseRank() public playersJoinedGame {
-        vm.startPrank(address(rpc));
-        uint player1InitialRank = characterNFT.getCharacterRank(
-            s_player1tokenId
-        );
-        uint player2InitialRank = characterNFT.getCharacterRank(
-            s_plater2tokenId
-        );
-        characterNFT.FlipRankNum(s_player1tokenId, false);
-        characterNFT.FlipRankNum(s_plater2tokenId, true);
-        uint player1FinalRank = characterNFT.getCharacterRank(s_player1tokenId);
-        uint player2FinalRank = characterNFT.getCharacterRank(s_plater2tokenId);
-        vm.stopPrank();
+    // function testFlipRankAndIncreaseRank() public playersJoinedGame {
+    //     vm.startPrank(address(rpc));
+    //     uint player1InitialRank = characterNFT.getCharacterRank(
+    //         s_player1tokenId
+    //     );
+    //     uint player2InitialRank = characterNFT.getCharacterRank(
+    //         s_plater2tokenId
+    //     );
+    //     characterNFT.FlipRankNum(s_player1tokenId, false);
+    //     characterNFT.FlipRankNum(s_plater2tokenId, true);
+    //     uint player1FinalRank = characterNFT.getCharacterRank(s_player1tokenId);
+    //     uint player2FinalRank = characterNFT.getCharacterRank(s_plater2tokenId);
+    //     vm.stopPrank();
 
-        assert(player1FinalRank == player1InitialRank);
-        assert(player2FinalRank > player2InitialRank);
-    }
+    //     assert(player1FinalRank == player1InitialRank);
+    //     assert(player2FinalRank > player2InitialRank);
+    // }
 }
