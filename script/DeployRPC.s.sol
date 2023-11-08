@@ -50,7 +50,7 @@ contract DeployRPC is Script {
 
             emit DeployRPC_SubscriptionFunded();
         }
-
+        address owner = helperConfig.getOwnerAddress();
         vm.startBroadcast();
         RPC rpc = new RPC(
             entranceFee,
@@ -58,10 +58,10 @@ contract DeployRPC is Script {
             gasLane,
             subscriptionId,
             callbackGasLimit,
-            address(characterNft)
+            address(characterNft),
+            owner
         );
         vm.stopBroadcast();
-        address owner = helperConfig.getOwnerAddress();
         vm.prank(owner);
         characterNft.setvrfCoordinatorContract(address(rpc));
 

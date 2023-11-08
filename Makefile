@@ -40,40 +40,34 @@ ifeq ($(findstring --network sepolia,$(ARGS)),--network sepolia)
 	NETWORK_ARGS := --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvv
 endif
 
-ifeq ($(findstring --network anvil,$(ARGS)),--network anvil)
-	NETWORK_ARGS := --rpc-url $(ANVIL_RPC_URL) --private-key $(DEFAULT_ANVIL_KEY) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvv
+ifeq ($(findstring --network polygon,$(ARGS)),--network polygon)
+	NETWORK_ARGS := --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(POLYGON_API_KEY) -vvvv
 endif
 
 
 
 deployCharacter: 
-	@forge script script/DeployCharacterNft.s.sol:DeployCharacterNft $(NETWORK_ARGS)
+	@forge script script/DeployCharacterNft.s.sol:DeployCharacterNft $(NETWORK_ARGS) --legacy
 
 deployRPC:
-	@forge script script/DeployRPC.s.sol:DeployRPC $(NETWORK_ARGS)
+	@forge script script/DeployRPC.s.sol:DeployRPC $(NETWORK_ARGS) --legacy
 
 mintCharacter:
-	@forge script script/Interactions.s.sol:MintCharacter ${NETWORK_ARGS}
+	@forge script script/Interactions.s.sol:MintCharacter $(NETWORK_ARGS) --legacy
 
-mintCharacter2:
-	@forge script script/Interactions.s.sol:MintCharacter --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY_2) --broadcast
+mintCharacter2Pol:
+	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --broadcast --verify --etherscan-api-key $(POLYGON_API_KEY) -vvvv --legacy
 mintCharacter2Sep:
 	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvv
 joinGameSep:
-		cast send 0x5f62f6BC74EeC53a828490bE1c1b14EE0634C85d "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY) 
+		cast send 0xa0a0cC0895e0d9DC74F4cD5Eb4497C7983f1d2B0 "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY) 
 joinGameSep2:
-		cast send 0x5f62f6BC74EeC53a828490bE1c1b14EE0634C85d "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) 		
-joinGame:
-	cast send 0x68B1D87F95878fE05B998F19b66F4baba5De1aed "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) 
+		cast send 0xa0a0cC0895e0d9DC74F4cD5Eb4497C7983f1d2B0 "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) 		
 
-joinGame2:
-	cast send 0x68B1D87F95878fE05B998F19b66F4baba5De1aed "joinGame(uint256, uint256)" 0 1 --value 0.01ether --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY_2) 
-
-mintMoodWithCast:
-	cast send 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "mintNft()" --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) 
- 
-flipMoodNftWithCast:
-	cast send 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "flipMood(uint256)" 0 --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) 
+joinGamePol:
+		cast send 0x66bEf29DAbfD1F29da5B0c4475a8015fBb9F646f "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy
+joinGamePol2:
+		cast send 0x66bEf29DAbfD1F29da5B0c4475a8015fBb9F646f "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --legacy 		
 
 performUpkeep: 
 	@forge script script/Interactions.s.sol:PerformUpkeep $(NETWORK_ARGS)
@@ -86,6 +80,6 @@ checkUpkeep:
 flipMoodNft:
 	@forge script script/Interactions.s.sol:FlipMoodNft $(NETWORK_ARGS)
 
-# RPC: 0x5f62f6BC74EeC53a828490bE1c1b14EE0634C85d
-# CharacterNFT: 0x5f62f6BC74EeC53a828490bE1c1b14EE0634C85d
+# RPC: 0x66bEf29DAbfD1F29da5B0c4475a8015fBb9F646f
+# CharacterNFT: 0x19e24dd98fE24D75E5fA43fB23Eeb965966A4274
 

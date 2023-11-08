@@ -42,6 +42,9 @@ contract HelperConfig is Script {
     constructor() {
         if (block.chainid == 11155111) {
             activeNetworkConfig = getSepoliaEthConfig();
+        }
+        if (block.chainid == 80001) {
+            activeNetworkConfig = getPolygonConfig();
         } else {
             activeNetworkConfig = getOrCreateAnvilEthConfig();
         }
@@ -51,10 +54,23 @@ contract HelperConfig is Script {
         networkConfig = NetworkConfig({
             entranceFee: 0.01 ether,
             vrfCoordinator: 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
-            gasLane: 0xff8dedfbfa60af186cf3c830acbc32c05aae823045ae5ea7da1e45fbfaba4f92,
+            gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
             subscriptionId: 0,
-            callbackGasLimit: 500000,
+            callbackGasLimit: 700000,
             link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
+            deployerKey: vm.envUint("PRIVATE_KEY")
+        });
+        return networkConfig;
+    }
+
+    function getPolygonConfig() public returns (NetworkConfig memory) {
+        networkConfig = NetworkConfig({
+            entranceFee: 0.01 ether,
+            vrfCoordinator: 0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed,
+            gasLane: 0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f,
+            subscriptionId: 0,
+            callbackGasLimit: 800000,
+            link: 0x326C977E6efc84E512bB9C30f76E30c160eD06FB,
             deployerKey: vm.envUint("PRIVATE_KEY")
         });
         return networkConfig;

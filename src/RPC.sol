@@ -22,6 +22,7 @@ contract RPC is VRFConsumerBaseV2 {
     error RPC__GameStateNotCalculating();
     error RPC__TransferFailed();
     error RPC__NoCharacterNft();
+    error RPC__OnlyOwner();
 
     //? Types Declarations
     enum Choice {
@@ -65,6 +66,7 @@ contract RPC is VRFConsumerBaseV2 {
     address private s_recentWinner;
     uint private s_recentWinnerChoice;
     CharacterNFT private immutable i_characterNft;
+    address public i_owner;
 
     //? Events
     event FirstPlayerJoined(address indexed player);
@@ -79,7 +81,8 @@ contract RPC is VRFConsumerBaseV2 {
         bytes32 gasLane,
         uint64 subscriptionId,
         uint32 callbackGasLimit,
-        address characterNft
+        address characterNft,
+        address owner
     ) VRFConsumerBaseV2(vrfCoordinator) {
         i_entranceFee = entranceFee;
         s_gameId = 0;
@@ -89,6 +92,7 @@ contract RPC is VRFConsumerBaseV2 {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinator);
         s_gameState = GameState.OPEN;
         i_characterNft = CharacterNFT(characterNft);
+        i_owner = owner;
     }
 
     function joinGame(uint choice, uint characterId) external payable {
@@ -152,7 +156,7 @@ contract RPC is VRFConsumerBaseV2 {
         uint256 /*_requestId*/,
         uint256[] memory _randomWords
     ) internal override {
-        if (s_gameState != GameState.CALCULATING) {
+        if (s_gameState != GameState.CLOSED) {
             revert RPC__GameStateNotCalculating();
         }
         Game storage _game = s_game;
@@ -193,7 +197,10 @@ contract RPC is VRFConsumerBaseV2 {
     }
 
     // Helper Function to reset game
-    function resetGameState() internal {
+    function resetGameState() public {
+        if (msg.sender != i_owner) {
+            revert RPC__OnlyOwner();
+        }
         s_gameState = GameState.OPEN;
         s_game.player1 = payable(address(0));
         s_game.player2 = payable(address(0));
@@ -202,6 +209,13 @@ contract RPC is VRFConsumerBaseV2 {
         s_game.player2Character = 0;
         s_game.choice2 = Choice.ROCK;
         s_game.resolved = false;
+    }
+
+    function restartGame() public {
+        if (msg.sender != i_owner) {
+            revert RPC__OnlyOwner();
+        }
+        s_gameState = GameState.OPEN;
     }
 
     /////////////////
