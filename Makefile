@@ -57,6 +57,8 @@ mintCharacter:
 
 mintCharacter2Pol:
 	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --broadcast --verify --etherscan-api-key $(POLYGON_API_KEY) -vvvv --legacy
+mintCharacter1Pol:
+	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(POLYGON_API_KEY) -vvvv --legacy
 mintCharacter2Sep:
 	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvv
 joinGameSep:
@@ -65,9 +67,9 @@ joinGameSep2:
 		cast send 0xa0a0cC0895e0d9DC74F4cD5Eb4497C7983f1d2B0 "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) 		
 
 joinGamePol:
-		cast send 0x66bEf29DAbfD1F29da5B0c4475a8015fBb9F646f "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy
+		cast send 0x35949A57F78A8C0bE737ca873d6b6b1D1AceEFDC "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy
 joinGamePol2:
-		cast send 0x66bEf29DAbfD1F29da5B0c4475a8015fBb9F646f "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --legacy 		
+		cast send 0x35949A57F78A8C0bE737ca873d6b6b1D1AceEFDC "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --legacy 		
 
 performUpkeep: 
 	@forge script script/Interactions.s.sol:PerformUpkeep $(NETWORK_ARGS)
@@ -80,6 +82,6 @@ checkUpkeep:
 flipMoodNft:
 	@forge script script/Interactions.s.sol:FlipMoodNft $(NETWORK_ARGS)
 
-# RPC: 0x66bEf29DAbfD1F29da5B0c4475a8015fBb9F646f
-# CharacterNFT: 0x19e24dd98fE24D75E5fA43fB23Eeb965966A4274
+# RPC: 0x35949A57F78A8C0bE737ca873d6b6b1D1AceEFDC
+# CharacterNFT: 0xF81d2B90B35047aa4A921A627C07c193e57B464c
 
