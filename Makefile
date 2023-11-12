@@ -67,21 +67,28 @@ joinGameSep2:
 		cast send 0xa0a0cC0895e0d9DC74F4cD5Eb4497C7983f1d2B0 "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) 		
 
 joinGamePol:
-		cast send 0x35949A57F78A8C0bE737ca873d6b6b1D1AceEFDC "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy
+		cast send 0xedDEFe3ab42cBE8B1d2a530eDfDfA0B9b3b1b3db "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy
 joinGamePol2:
-		cast send 0x35949A57F78A8C0bE737ca873d6b6b1D1AceEFDC "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --legacy 		
+		cast send 0xedDEFe3ab42cBE8B1d2a530eDfDfA0B9b3b1b3db "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --legacy 	
 
-performUpkeep: 
-	@forge script script/Interactions.s.sol:PerformUpkeep $(NETWORK_ARGS)
+resetGame:
+		cast send 0xf19e27cd8f1ff98BD66D258BD17BFD31A020dd5e "resetGameState()" --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy 	
+performUpkeep:
+		cast send 0xf19e27cd8f1ff98BD66D258BD17BFD31A020dd5e "performUpkeep(bytes)" "0x" --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy 	
+checkUpkeep:
+		cast send 0xf19e27cd8f1ff98BD66D258BD17BFD31A020dd5e "checkUpkeep(bytes)" "0x" --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy 	
 
-fulfillRandomWords:
-	@forge script script/Interactions.s.sol:FulfillRandomWords $(NETWORK_ARGS)
-checkUpkeep: 
-	@forge script script/Interactions.s.sol:CheckUpKeep $(NETWORK_ARGS)
+# performUpkeep: 
+# 	@forge script script/Interactions.s.sol:PerformUpkeep $(NETWORK_ARGS)
 
-flipMoodNft:
-	@forge script script/Interactions.s.sol:FlipMoodNft $(NETWORK_ARGS)
+# fulfillRandomWords:
+# 	@forge script script/Interactions.s.sol:FulfillRandomWords $(NETWORK_ARGS)
+# checkUpkeep: 
+# 	@forge script script/Interactions.s.sol:CheckUpKeep $(NETWORK_ARGS)
 
-# RPC: 0x35949A57F78A8C0bE737ca873d6b6b1D1AceEFDC
-# CharacterNFT: 0xF81d2B90B35047aa4A921A627C07c193e57B464c
+# flipMoodNft:
+# 	@forge script script/Interactions.s.sol:FlipMoodNft $(NETWORK_ARGS)
+
+# RPC: 0xedDEFe3ab42cBE8B1d2a530eDfDfA0B9b3b1b3db
+# CharacterNFT: 0x6f0e277F02989C9bc8a1d1118a5E1768c4919Ef5
 
