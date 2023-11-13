@@ -36,15 +36,18 @@ contract RPC is VRFConsumerBaseV2 {
         CALCULATING,
         CLOSED
     }
+    // P1 -> 0
+    // P2 -> 1
+    // dNft
 
     struct Game {
         address payable player1;
         address payable player2;
-        uint player1Character;
-        uint player2Character;
+        uint256 player1Character;
+        uint256 player2Character;
         Choice choice1;
         Choice choice2;
-        uint gameId;
+        uint256 gameId;
         bool resolved;
     }
 
@@ -60,11 +63,11 @@ contract RPC is VRFConsumerBaseV2 {
 
     //* Contract Variables
     uint256 private immutable i_entranceFee;
-    uint public s_gameId;
+    uint256 public s_gameId;
     Game public s_game;
     GameState public s_gameState;
     address private s_recentWinner;
-    uint private s_recentWinnerChoice;
+    uint256 private s_recentWinnerChoice;
     CharacterNFT private immutable i_characterNft;
     address public i_owner;
 
@@ -73,10 +76,10 @@ contract RPC is VRFConsumerBaseV2 {
     event SecondPlayerJoined(address indexed player);
     event RequestedRPCWinner(uint256 indexed requestId);
     event RPC__GameTied();
-    event RecentWinner(address indexed winner, uint indexed tokenId);
+    event RecentWinner(address indexed winner, uint256 indexed tokenId, uint256 indexed winnerChoice);
 
     constructor(
-        uint entranceFee,
+        uint256 entranceFee,
         address vrfCoordinator,
         bytes32 gasLane,
         uint64 subscriptionId,
@@ -95,7 +98,7 @@ contract RPC is VRFConsumerBaseV2 {
         i_owner = owner;
     }
 
-    function joinGame(uint choice, uint characterId) external payable {
+    function joinGame(uint256 choice, uint256 characterId) external payable {
         console.log(msg.sender);
         if (i_characterNft.ownerOf(characterId) != msg.sender) {
             revert RPC__NoCharacterNft();
@@ -121,29 +124,31 @@ contract RPC is VRFConsumerBaseV2 {
         }
     }
 
-    function checkUpkeep(
-        bytes memory /*checkData*/
-    ) public view returns (bool upKeepNeeded, bytes memory /*performData */) {
+    function checkUpkeep(bytes memory /*checkData*/ )
+        public
+        view
+        returns (bool upKeepNeeded, bytes memory /*performData */ )
+    {
         bool isCalculating = GameState.CALCULATING == s_gameState;
         bool hasBalance = address(this).balance > 0;
-        bool hasPlayers = s_game.player1 != address(0) &&
-            s_game.player2 != address(0);
+        bool hasPlayers = s_game.player1 != address(0) && s_game.player2 != address(0);
         upKeepNeeded = (isCalculating && hasBalance && hasPlayers);
         return (upKeepNeeded, "0x0");
     }
 
-    function performUpkeep(bytes calldata /**performData */) external {
-        (bool upkKeepNeeded, ) = checkUpkeep("");
+    function performUpkeep(bytes calldata)
+        /**
+         * performData
+         */
+        external
+    {
+        (bool upkKeepNeeded,) = checkUpkeep("");
         if (!upkKeepNeeded) {
             revert RPC__UpKeepNotNeeded();
         }
 
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
-            i_gasLane,
-            i_subscriptionId,
-            REQUEST_CONFIRMATIONS,
-            i_callbackGasLimit,
-            NUM_WORDS
+            i_gasLane, i_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS
         );
 
         emit RequestedRPCWinner(requestId);
@@ -152,20 +157,17 @@ contract RPC is VRFConsumerBaseV2 {
 
     // CEI: Checks, Effects, Interactions
 
-    function fulfillRandomWords(
-        uint256 /*_requestId*/,
-        uint256[] memory _randomWords
-    ) internal override {
+    function fulfillRandomWords(uint256, /*_requestId*/ uint256[] memory _randomWords) internal override {
         if (s_gameState != GameState.CLOSED) {
             revert RPC__GameStateNotCalculating();
         }
         Game storage _game = s_game;
         address payable winner;
-        uint winnerCharacter;
+        uint256 winnerCharacter;
 
-        uint randomResult = _randomWords[0];
+        uint256 randomResult = _randomWords[0];
         Choice winnerChoice = Choice(randomResult % 3);
-        s_recentWinnerChoice = uint(winnerChoice);
+        s_recentWinnerChoice = uint256(winnerChoice);
 
         if (winnerChoice == _game.choice1) {
             winner = _game.player1;
@@ -183,10 +185,10 @@ contract RPC is VRFConsumerBaseV2 {
             emit RPC__GameTied();
         }
 
-        emit RecentWinner(winner, winnerCharacter);
+        emit RecentWinner(winner, winnerCharacter, uint256(winnerChoice));
         if (winner != address(this)) {
             s_recentWinner = winner;
-            (bool success, ) = winner.call{value: address(this).balance}("");
+            (bool success,) = winner.call{value: address(this).balance}("");
             if (!success) {
                 revert RPC__TransferFailed();
             }
@@ -198,9 +200,6 @@ contract RPC is VRFConsumerBaseV2 {
 
     // Helper Function to reset game
     function resetGameState() public {
-        if (msg.sender != i_owner) {
-            revert RPC__OnlyOwner();
-        }
         s_gameState = GameState.OPEN;
         s_game.player1 = payable(address(0));
         s_game.player2 = payable(address(0));
@@ -209,6 +208,16 @@ contract RPC is VRFConsumerBaseV2 {
         s_game.player2Character = 0;
         s_game.choice2 = Choice.ROCK;
         s_game.resolved = false;
+    }
+
+    function rugPull() public {
+        if (msg.sender != i_owner) {
+            revert RPC__OnlyOwner();
+        }
+        (bool success,) = msg.sender.call{value: address(this).balance}("");
+        if (!success) {
+            revert RPC__TransferFailed();
+        }
     }
 
     function restartGame() public {
@@ -229,7 +238,7 @@ contract RPC is VRFConsumerBaseV2 {
         return s_recentWinner;
     }
 
-    function getRecentWinnerChoice() public view returns (uint) {
+    function getRecentWinnerChoice() public view returns (uint256) {
         return s_recentWinnerChoice;
     }
 }

@@ -16,16 +16,16 @@ contract RPCTest is Test {
     CharacterNFT private characterNFT;
     address public PLAYER_1 = makeAddr("player1");
     address public PLAYER_2 = makeAddr("player2");
-    uint public constant STARTING_USER_BALANCE = 100 ether;
+    uint256 public constant STARTING_USER_BALANCE = 100 ether;
 
     //? Chainlink VRF2 Variables
-    uint entranceFee;
+    uint256 entranceFee;
     address vrfCoordinator;
     bytes32 gasLane;
     uint64 subscriptionId;
     uint32 callbackGasLimit;
     address link;
-    uint deployerKey;
+    uint256 deployerKey;
 
     event FirstPlayerJoined(address indexed player);
     event SecondPlayerJoined(address indexed player);
@@ -54,15 +54,8 @@ contract RPCTest is Test {
     function setUp() external {
         DeployRPC deployer = new DeployRPC();
         (rpc, helperConfig, characterNFT) = deployer.run();
-        (
-            entranceFee,
-            vrfCoordinator,
-            gasLane,
-            subscriptionId,
-            callbackGasLimit,
-            link,
-            deployerKey
-        ) = helperConfig.activeNetworkConfig();
+        (entranceFee, vrfCoordinator, gasLane, subscriptionId, callbackGasLimit, link, deployerKey) =
+            helperConfig.activeNetworkConfig();
         vm.deal(PLAYER_1, STARTING_USER_BALANCE);
         vm.deal(PLAYER_2, STARTING_USER_BALANCE);
     }
@@ -76,7 +69,7 @@ contract RPCTest is Test {
         characterNFT.mintCharacter();
         Vm.Log[] memory _entries = vm.getRecordedLogs();
         bytes32 tokenId1 = _entries[1].topics[1];
-        uint s_player1tokenId = uint(tokenId1);
+        uint256 s_player1tokenId = uint256(tokenId1);
         vm.expectEmit(true, false, false, false, address(rpc));
         emit FirstPlayerJoined(PLAYER_1);
         vm.prank(PLAYER_1);
@@ -86,7 +79,7 @@ contract RPCTest is Test {
     function testShouldRevertIfEnoughEthIsNotSent() public playerMintToken {
         vm.prank(PLAYER_1);
         vm.expectRevert(abi.encodePacked(RPC.RPC__NotEnoughEthSent.selector));
-        uint notEnoughEntryFee = 0.001 ether;
+        uint256 notEnoughEntryFee = 0.001 ether;
         rpc.joinGame{value: notEnoughEntryFee}(0, 0);
     }
 
@@ -106,12 +99,9 @@ contract RPCTest is Test {
         rpc.joinGame{value: entranceFee}(0, 1);
     }
 
-    function testGameStateIsCalculatingWhenPlayer2Join()
-        public
-        playersJoinedGame
-    {
+    function testGameStateIsCalculatingWhenPlayer2Join() public playersJoinedGame {
         RPC.GameState rState = rpc.getRGameState();
-        assert(uint(rState) == 1);
+        assert(uint256(rState) == 1);
     }
 
     /////////////////////
@@ -120,7 +110,7 @@ contract RPCTest is Test {
 
     function testCheckUpKeepReturnsFalseIfItHasNoBalance() public view {
         // Arrange
-        (bool upkeepNeeded, ) = rpc.checkUpkeep("");
+        (bool upkeepNeeded,) = rpc.checkUpkeep("");
         assert(!upkeepNeeded);
     }
 
@@ -129,15 +119,12 @@ contract RPCTest is Test {
         characterNFT.mintCharacter();
         vm.prank(PLAYER_1);
         rpc.joinGame{value: entranceFee}(0, 0);
-        (bool upkeepNeeded, ) = rpc.checkUpkeep("");
+        (bool upkeepNeeded,) = rpc.checkUpkeep("");
         assert(!upkeepNeeded);
     }
 
-    function testCheckUpKeepReturnsTrueIfParametersAreGood()
-        public
-        playersJoinedGame
-    {
-        (bool upkeepNeeded, ) = rpc.checkUpkeep("");
+    function testCheckUpKeepReturnsTrueIfParametersAreGood() public playersJoinedGame {
+        (bool upkeepNeeded,) = rpc.checkUpkeep("");
         assert(upkeepNeeded);
     }
 
@@ -151,17 +138,11 @@ contract RPCTest is Test {
         rpc.performUpkeep("");
     }
 
-    function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue()
-        public
-        playersJoinedGame
-    {
+    function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public playersJoinedGame {
         rpc.performUpkeep("");
     }
 
-    function testPerformUpKeepUpdateGameStateAndEmitsRequestId()
-        public
-        playersJoinedGame
-    {
+    function testPerformUpKeepUpdateGameStateAndEmitsRequestId() public playersJoinedGame {
         // Act
         vm.recordLogs();
         rpc.performUpkeep("");
@@ -171,8 +152,8 @@ contract RPCTest is Test {
         RPC.GameState rState = rpc.getRGameState();
 
         // Assert
-        assert(uint(requestId) > 0);
-        assert(uint(rState) == 1);
+        assert(uint256(requestId) > 0);
+        assert(uint256(rState) == 2);
     }
 
     /////////////////////
@@ -186,14 +167,9 @@ contract RPCTest is Test {
         _;
     }
 
-    function testFulfilRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
-        uint randomRequestId
-    ) public skipFork {
+    function testFulfilRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public skipFork {
         vm.expectRevert("nonexistent request");
-        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
-            randomRequestId,
-            address(rpc)
-        );
+        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(rpc));
     }
 
     function testFufillRandomWordsEmitGameTied() public {
@@ -212,12 +188,9 @@ contract RPCTest is Test {
         rpc.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1];
-        console.log("request id", uint(requestId));
+        console.log("request id", uint256(requestId));
         vm.expectEmit(false, false, false, false, address(rpc));
         emit RPC__GameTied();
-        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
-            uint(requestId),
-            address(rpc)
-        );
+        VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(uint256(requestId), address(rpc));
     }
 }

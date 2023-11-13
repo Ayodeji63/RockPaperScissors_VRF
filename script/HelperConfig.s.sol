@@ -54,7 +54,7 @@ contract HelperConfig is Script {
             vrfCoordinator: 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
             subscriptionId: 0,
-            callbackGasLimit: 1500000,
+            callbackGasLimit: 500000,
             link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
             deployerKey: vm.envUint("PRIVATE_KEY")
         });
@@ -66,8 +66,8 @@ contract HelperConfig is Script {
             entranceFee: 0.01 ether,
             vrfCoordinator: 0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed,
             gasLane: 0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f,
-            subscriptionId: 0,
-            callbackGasLimit: 1000000,
+            subscriptionId: 6467,
+            callbackGasLimit: 500000,
             link: 0x326C977E6efc84E512bB9C30f76E30c160eD06FB,
             deployerKey: vm.envUint("PRIVATE_KEY")
         });
@@ -124,7 +124,10 @@ contract HelperConfig is Script {
     function getOwnerAddress() public view returns (address) {
         address owner;
         if (block.chainid == 11155111) {
-            owner = vm.envAddress("OWNER_ADDRESS");
+            owner = 0xb1f540756bE3c06eBbcAC15d701C5477F271a7a0;
+        }
+        if (block.chainid == 80001) {
+            owner = 0xb1f540756bE3c06eBbcAC15d701C5477F271a7a0;
         } else {
             owner = DEFAULT_ANVIL_ADDRESS;
         }

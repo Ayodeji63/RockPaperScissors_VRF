@@ -52,13 +52,12 @@ deployCharacter:
 deployRPC:
 	@forge script script/DeployRPC.s.sol:DeployRPC $(NETWORK_ARGS) --legacy
 
-mintCharacter:
-	@forge script script/Interactions.s.sol:MintCharacter $(NETWORK_ARGS) --legacy
-
 mintCharacter2Pol:
 	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --broadcast --verify --etherscan-api-key $(POLYGON_API_KEY) -vvvv --legacy
 mintCharacter1Pol:
 	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --broadcast --verify --etherscan-api-key $(POLYGON_API_KEY) -vvvv --legacy
+mintCharacter:
+	@forge script script/Interactions.s.sol:MintCharacter $(NETWORK_ARGS) --legacy
 mintCharacter2Sep:
 	@forge script script/Interactions.s.sol:MintCharacter --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvv
 joinGameSep:
@@ -67,9 +66,9 @@ joinGameSep2:
 		cast send 0xa0a0cC0895e0d9DC74F4cD5Eb4497C7983f1d2B0 "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(SEPOLIA_RPC_URL) --private-key $(PRIVATE_KEY_2) 		
 
 joinGamePol:
-		cast send 0xedDEFe3ab42cBE8B1d2a530eDfDfA0B9b3b1b3db "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy
+		cast send 0x774715460C706aA02C669C489052A48a7c526fF4 "joinGame(uint256, uint256)" 0 0 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy
 joinGamePol2:
-		cast send 0xedDEFe3ab42cBE8B1d2a530eDfDfA0B9b3b1b3db "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --legacy 	
+		cast send 0x774715460C706aA02C669C489052A48a7c526fF4 "joinGame(uint256, uint256)" 2 1 --value 0.01ether --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY_2) --legacy 	
 
 resetGame:
 		cast send 0xf19e27cd8f1ff98BD66D258BD17BFD31A020dd5e "resetGameState()" --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy 	
@@ -78,17 +77,7 @@ performUpkeep:
 checkUpkeep:
 		cast send 0xf19e27cd8f1ff98BD66D258BD17BFD31A020dd5e "checkUpkeep(bytes)" "0x" --rpc-url $(POLYGON_RPC_URL) --private-key $(PRIVATE_KEY) --legacy 	
 
-# performUpkeep: 
-# 	@forge script script/Interactions.s.sol:PerformUpkeep $(NETWORK_ARGS)
 
-# fulfillRandomWords:
-# 	@forge script script/Interactions.s.sol:FulfillRandomWords $(NETWORK_ARGS)
-# checkUpkeep: 
-# 	@forge script script/Interactions.s.sol:CheckUpKeep $(NETWORK_ARGS)
-
-# flipMoodNft:
-# 	@forge script script/Interactions.s.sol:FlipMoodNft $(NETWORK_ARGS)
-
-# RPC: 0xedDEFe3ab42cBE8B1d2a530eDfDfA0B9b3b1b3db
-# CharacterNFT: 0x6f0e277F02989C9bc8a1d1118a5E1768c4919Ef5
+# RPC: 0x774715460C706aA02C669C489052A48a7c526fF4
+# CharacterNFT: 0xD41AA376AE03d71e3b8B782c960f968936785E3D
 

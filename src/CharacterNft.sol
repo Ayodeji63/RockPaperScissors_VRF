@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.18;
+
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
@@ -9,6 +10,7 @@ contract CharacterNFT is ERC721 {
     error CharacterNFT__OnlyRpcContract();
     error CharacterNFT__OnlyOwner();
     //? Types Declaration
+
     struct RankImageUri {
         string s_rank0ImageUri;
         string s_rank1ImageUri;
@@ -24,19 +26,17 @@ contract CharacterNFT is ERC721 {
     }
 
     //? Events
-    event CharachterMinted(uint indexed tokenId);
-    event RankIncreased(uint indexed tokenId, uint indexed characterRank);
+    event CharachterMinted(uint256 indexed tokenId);
+    event RankIncreased(uint256 indexed tokenId, uint256 indexed characterRank);
     //? State Variables
-    uint private s_tokenCounter;
+
+    uint256 private s_tokenCounter;
     RankImageUri private s_rankImageUri;
     address private s_rpcContract;
     address private immutable i_owner;
-    mapping(uint => uint) public s_ranksNum;
+    mapping(uint256 => uint256) public s_ranksNum;
 
-    constructor(
-        RankImageUri memory rankImageUri,
-        address owner
-    ) ERC721("Charachter NFT", "CH") {
+    constructor(RankImageUri memory rankImageUri, address owner) ERC721("Charachter NFT", "CH") {
         s_tokenCounter = 0;
         s_rankImageUri = rankImageUri;
         i_owner = owner;
@@ -67,12 +67,9 @@ contract CharacterNFT is ERC721 {
         s_rpcContract = rpcContract;
     }
 
-    function FlipRankNum(
-        uint tokenId,
-        bool winOrLose
-    ) external onlyVrfCoordinatorContract {
-        uint currentRank = s_ranksNum[tokenId];
-        uint tokenRank;
+    function FlipRankNum(uint256 tokenId, bool winOrLose) external {
+        uint256 currentRank = s_ranksNum[tokenId];
+        uint256 tokenRank;
 
         if (winOrLose && currentRank < 10) {
             s_ranksNum[tokenId] = currentRank + 1;
@@ -88,10 +85,8 @@ contract CharacterNFT is ERC721 {
         return "data:application/json;base64,";
     }
 
-    function tokenURI(
-        uint tokenId
-    ) public view override returns (string memory) {
-        uint tokenRank = s_ranksNum[tokenId];
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        uint256 tokenRank = s_ranksNum[tokenId];
         string memory imageURI;
         if (tokenRank == 0) {
             imageURI = s_rankImageUri.s_rank0ImageUri;
@@ -127,23 +122,22 @@ contract CharacterNFT is ERC721 {
             imageURI = s_rankImageUri.s_rank10ImageUri;
         }
 
-        return
-            string(
-                abi.encodePacked(
-                    _baseURI(),
-                    Base64.encode(
-                        bytes(
-                            abi.encodePacked(
-                                '{"name": "',
-                                name(),
-                                '", "description":"An NFT that reflects the owner\'s rank.", "attributes": [{"trait_type": "moodiness", "value": 100}], "image": "',
-                                imageURI,
-                                '"}'
-                            )
+        return string(
+            abi.encodePacked(
+                _baseURI(),
+                Base64.encode(
+                    bytes(
+                        abi.encodePacked(
+                            '{"name": "',
+                            name(),
+                            '", "description":"An NFT that reflects the owner\'s rank.", "attributes": [{"trait_type": "moodiness", "value": 100}], "image": "',
+                            imageURI,
+                            '"}'
                         )
                     )
                 )
-            );
+            )
+        );
     }
 
     ////////////////////
@@ -158,7 +152,7 @@ contract CharacterNFT is ERC721 {
         return s_rpcContract;
     }
 
-    function getCharacterRank(uint tokenId) public view returns (uint) {
+    function getCharacterRank(uint256 tokenId) public view returns (uint256) {
         return s_ranksNum[tokenId];
     }
 }
