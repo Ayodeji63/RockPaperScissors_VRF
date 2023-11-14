@@ -49,7 +49,7 @@ endif
 deployCharacter: 
 	@forge script script/DeployCharacterNft.s.sol:DeployCharacterNft $(NETWORK_ARGS) --legacy
 
-deployRPC:
+deployRPS:
 	@forge script script/DeployRPC.s.sol:DeployRPC $(NETWORK_ARGS) --legacy
 
 mintCharacter2Pol:
@@ -80,4 +80,5 @@ checkUpkeep:
 
 # RPC: 0x774715460C706aA02C669C489052A48a7c526fF4
 # CharacterNFT: 0xD41AA376AE03d71e3b8B782c960f968936785E3D
+
 

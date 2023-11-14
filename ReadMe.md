@@ -1,59 +1,153 @@
+# Rock-Paper-Scissors Game and CharacterNFT
 
+## About
 
-**Smart Contract Design Guidelines:**
+Welcome to the Rock-Paper-Scissors (RPC) Game and CharacterNFT projects! This repository hosts a decentralized version of the classic Rock-Paper-Scissors game, enhanced with Chainlink's Verifiable Random Function (VRF) for unpredictability and fairness. Additionally, the CharacterNFT system introduces a unique concept of gaming characters represented as NFTs, each evolving based on players' achievements in the RPC game.
 
-1. **Contract Initialization:**
-   - Define the necessary initial parameters, such as Chainlink VRF configuration, game state, and NFT settings.
-   
-2. **Data Structures:**
-   - Define structures for storing game data, including player choices, game results, and dynamic NFT attributes.
-   
-3. **Chainlink VRF Integration:**
-   - Import the Chainlink VRF contract and set up the necessary configuration, including the VRF contract address, keyHash, and fee.
+## Getting Started
 
-4. **Game State Management:**
-   - Create state variables to manage the game's state, such as the current game ID, player addresses, and the game result.
+### Requirements
 
-5. **Game Entry:**
-   - Allow players to enter the game by submitting their choice (Rock, Paper, or Scissors) and the required fee.
+Make sure you have the following tools installed:
 
-6. **Random Outcome Request:**
-   - After both players have entered the game, initiate a Chainlink VRF request to obtain a random number.
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [foundry](https://getfoundry.sh/)
 
-7. **Random Outcome Mapping:**
-   - Define a mapping that translates the random number into a game outcome. For example:
-     - If randomNumber < 0.33, the outcome is Rock.
-     - If 0.33 <= randomNumber < 0.66, the outcome is Paper.
-     - If 0.66 <= randomNumber, the outcome is Scissors.
+### Quickstart
 
-8. **Game Outcome Determination:**
-   - Use the mapped random outcome to determine the winner based on the player choices.
+Clone the repository and build the project:
 
-9. **NFT Minting:**
-   - Mint dynamic NFTs for the winning player, incorporating the outcome into the NFT's attributes (e.g., visual representation of the choice).
+```bash
+git clone https://github.com/Ayodeji63/RockPaperScissors_VRF.git
+forge build
+```
 
-10. **Game Result Update:**
-    - Update the game state with the result, including the winner and the associated NFT ID.
+### Updates
 
-**Computation Flow:**
+Stay updated with the latest changes:
 
-1. Players A and B join the game by submitting their choices and the required fees.
+- For openzeppelin-contracts, install version 4.8.3 using:
 
-2. The smart contract initiates a Chainlink VRF request to obtain a random number.
+```bash
+forge install openzeppelin/openzeppelin-contracts@v4.8.3 --no-commit
+```
 
-3. Chainlink VRF responds with a random number.
+### Usage
 
-4. The smart contract maps the random number to a game outcome (Rock, Paper, or Scissors).
+#### Start a Local Node
 
-5. The smart contract determines the winner based on the mapped outcome and the player choices.
+```bash
+make anvil
+```
 
-6. The winning player is awarded a dynamic NFT representing the game outcome.
+#### Deploy to Polygon (customize for other networks)
 
-7. The game state is updated with the result, including the winner and NFT ID.
+```bash
+make deployRPC ARGS="--network polygon"
+```
 
-8. Players can query the game's outcome and collect their NFTs.
+### Testing
 
-This guideline outlines the key components of the smart contract and the sequence of actions that occur when players participate in the game. It introduces randomness through Chainlink VRF while ensuring transparency and fairness in the game's outcome. Players can collect dynamic NFTs as a reward for winning.
+Explore the four test tiers:
 
-**install**
-> forge install smartcontractkit/chainlink-brownie-contracts@0.6.1 --no-commit
+1. Unit
+2. Integration
+3. Forked
+4. Staging
+
+Run the tests:
+
+```bash
+forge test
+```
+
+#### Test Coverage
+
+```bash
+forge coverage
+```
+
+### Deployment to Testnet or Mainnet
+
+1. Set up environment variables in a `.env` file:
+
+```bash
+PRIVATE_KEY=
+SEPOLIA_RPC_URL=
+OWNER_ADDRESS=
+ETHERSCAN_API_KEY=
+PRIVATE_KEY_2=
+POLYGON_RPC_URL=
+POLYGON_API_KEY=
+```
+
+2. Get testnet ETH from [faucets.chain.link](https://faucets.chain.link/).
+
+3. Deploy to Polygon:
+
+```bash
+make deploy ARGS="--network polygon"
+```
+
+#### Mint Characters and Join the Game
+
+Use the provided commands in the make file:
+
+- Mint Character for Player 1:
+
+```bash
+make mintCharacter1Pol
+```
+
+- Mint Character for Player 2:
+
+```bash
+make mintCharacter2Pol
+```
+- Note: Before running joinGamePol, ensure you've updated the RPC address in the make file, you see this while deploying the RPC or check the `broadcast` folder. This ensures that users are joining the game with the most recent RPC contract address.
+
+- Player 1 Joins the Game:
+
+```bash
+make joinGamePol
+```
+
+- Player 2 Joins the Game:
+
+```bash
+make joinGamePol2
+```
+
+### Estimate Gas
+
+Estimate gas costs:
+
+```bash
+forge snapshot
+```
+
+### Formatting
+
+Run code formatting:
+
+```bash
+forge fmt
+```
+
+### Slither
+
+Check for vulnerabilities:
+
+```bash
+slither :; slither . --config-file slither.config.json
+```
+
+## Connect with Us
+
+Feel free to connect with the project creator and follow their blockchain adventures:
+
+[![Olusanya Ayodeji Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/Ayodeji7111)
+[![Olusanya Ayodeji YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/channel/UCZcXA_0j_0zeo-4bKZCHOZQ)
+[![Olusanya Ayodeji Linkedin](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/olusanya-ayodeji-3284ba241/)
+
+Thank you for exploring the exciting world of blockchain gaming and decentralized finance with us! If you have any questions or suggestions, don't hesitate to reach out. Happy coding and gaming! 🚀🎮
